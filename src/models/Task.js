@@ -17,6 +17,10 @@ const taskSchema = new Schema({
         type: Date,
         default: 0,
     },
+    user_date_time: {
+        type: String,
+        default: 0,
+    },
 });
 
 module.exports = model('Task', taskSchema);

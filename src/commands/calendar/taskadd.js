@@ -62,13 +62,14 @@ module.exports = {
             userId: userId,
             guildId: guildId,
             task: task,
-            date_time: dateAndTime
+            date_time: dateAndTime,
+            user_date_time: dateAndTimeString
         })
 
         // Save the task to the database
         newTask.save().then(() => {
             interaction.editReply("Task added to the calendar!");
-            console.log(`Task added to the calendar: ${task} on ${dateAndTimeString} from user ${userId} in guild ${guildId}`);
+            console.log(`Task added to the calendar: ${task} on ${dateAndTimeString} from user ${userId} in guild ${guildId}, local user time: ${timeString}`);
         }).catch((err) => {
             console.error(err);
             interaction.editReply("An error occurred while adding the task to the calendar.");

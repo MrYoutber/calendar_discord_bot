@@ -1,51 +1,29 @@
-const { testServer } = require("../../../config.json");
-const getApplicationCommands = require("../../utils/getApplicationCommands");
-const getLocalCommands = require("../../utils/getLocalCommands");
-const areCommandsDifferent = require("../../utils/areCommandsDifferent");
+const { Client } = require('discord.js');
+const { clientId } = require('../../config.json');
+require('dotenv').config();
 
+/**
+ * @param {Client} client
+ */
 module.exports = async (client) => {
-  try {
-    const localCommands = getLocalCommands();
-    const applicationCommands = await getApplicationCommands(client, testServer);
-    
-    for (const localCommand of localCommands) {
-      const { name, description, options } = localCommand;
+    registerCommands();
+}
 
-      const existingCommand = await applicationCommands.cache.find(
-        (cmd) => cmd.name === name
-      );
+async function registerCommands() {
+    const { REST, Routes } = require('discord.js');
 
-      if (existingCommand) {
-        if (localCommand.deleted) {
-          await applicationCommands.delete(existingCommand.id);
-          console.log(`🗑️ Deleted command: "${name}".`);
-          continue;
-        }
+    const rest = new REST({ version: '10' }).setToken(process.env.TOKEN); // Replace with your bot's token
 
-        if (areCommandsDifferent(existingCommand, localCommand)) {
-          await applicationCommands.edit(existingCommand.id, {
-            description,
-            options,
-          });
+    try {
+        console.log('Started refreshing application (/) commands.');
 
-          console.log(`🔁 Edited command: "${name}".`);
-        }
-      } else {
-        if (localCommand.deleted) {
-            console.log(`⏩ Skipping registering command "${name}" because it is marked as deleted.`);
-            continue;
-        }
+        await rest.put(
+            Routes.applicationCommands(clientId), // Replace with your bot's client ID
+            { body: commands }
+        );
 
-        await applicationCommands.create({
-            name,
-            description,
-            options,
-        });
-
-        console.log(`👍 Registered command: "${name}".`)
-      }
+        console.log('Successfully reloaded application (/) commands.');
+    } catch (error) {
+        console.error(error);
     }
-  } catch (error) {
-    console.log(`There was an error: ${error}`);
-  }
-};
+}

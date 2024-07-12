@@ -21,6 +21,10 @@ const taskSchema = new Schema({
         type: String,
         default: 0,
     },
+    priority: {
+        type: Number,
+        default: 0,
+    }
 });
 
 module.exports = model('Task', taskSchema);

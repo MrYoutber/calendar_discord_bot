@@ -13,54 +13,46 @@ module.exports = async (client, interaction) => {
 
     if (!commandObject) return;
 
-    if (commandObject.devOnly) {
-      if (!devs.includes(interaction.member.id)) {
-        interaction.reply({
-          content: "Only developers are allowed to run this command.",
-          ephemeral: true,
-        });
-        return;
-      }
+    if (commandObject.devOnly && !devs.includes(interaction.member.id)) {
+      return interaction.reply({
+        content: "Only developers are allowed to run this command.",
+        ephemeral: true,
+      });
     }
 
-    if (commandObject.testOnly) {
-      if (!(interaction.guild.id === testServer)) {
-        interaction.reply({
-          content: "This command cannot be ran here.",
-          ephemeral: true,
-        });
-        return;
-      }
+    if (commandObject.testOnly && interaction.guild.id !== testServer) {
+      return interaction.reply({
+        content: "This command cannot be run here.",
+        ephemeral: true,
+      });
     }
 
     if (commandObject.permissionsRequired?.length) {
       for (const permission of commandObject.permissionsRequired) {
         if (!interaction.member.permissions.has(permission)) {
-          interaction.reply({
+          return interaction.reply({
             content: "Not enough permissions.",
             ephemeral: true,
           });
-          return;
         }
       }
     }
 
     if (commandObject.botPermissions?.length) {
-      for (const permission of commandObject.botPermissions) {
-        const bot = interaction.guild.members.me;
+      const bot = interaction.guild.members.me;
 
+      for (const permission of commandObject.botPermissions) {
         if (!bot.permissions.has(permission)) {
-          interaction.reply({
-            content: "I don't have enough permissions.",
+          return interaction.reply({
+            content: "I don’t have enough permissions.",
             ephemeral: true,
           });
-          return;
         }
       }
     }
 
     await commandObject.callback(client, interaction);
   } catch (error) {
-    console.log(`There was an error running this command: ${error}`);
+    console.error(`There was an error running this command: ${error}`);
   }
 };

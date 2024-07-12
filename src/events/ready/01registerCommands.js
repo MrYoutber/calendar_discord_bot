@@ -1,29 +1,40 @@
-const { Client } = require('discord.js');
-const { clientId } = require('../../config.json');
-require('dotenv').config();
+const { Client, REST, Routes } = require("discord.js");
+const fs = require("fs");
+const path = require("path");
+const { devs, testServer, clientId } = require("../../../config.json");
+const getLocalCommands = require("../../utils/getLocalCommands");
+require("dotenv").config();
 
 /**
  * @param {Client} client
  */
 module.exports = async (client) => {
-    registerCommands();
-}
+  registerCommands();
+};
 
 async function registerCommands() {
-    const { REST, Routes } = require('discord.js');
+  // Register commands globally
+  const commands = [];
+  const localCommands = getLocalCommands();
 
-    const rest = new REST({ version: '10' }).setToken(process.env.TOKEN); // Replace with your bot's token
+  localCommands.forEach((command) => {
+    commands.push({
+      name: command.name,
+      description: command.description,
+      options: command.options || [],
+    });
+    console.log(`Registering command: ${command.name}`);
+  });
 
-    try {
-        console.log('Started refreshing application (/) commands.');
+  const rest = new REST({ version: "10" }).setToken(process.env.TOKEN);
 
-        await rest.put(
-            Routes.applicationCommands(clientId), // Replace with your bot's client ID
-            { body: commands }
-        );
+  try {
+    console.log("Started refreshing application (/) commands.");
 
-        console.log('Successfully reloaded application (/) commands.');
-    } catch (error) {
-        console.error(error);
-    }
+    await rest.put(Routes.applicationCommands(clientId), { body: commands });
+
+    console.log("Successfully reloaded application (/) commands.");
+  } catch (error) {
+    console.error(error);
+  }
 }

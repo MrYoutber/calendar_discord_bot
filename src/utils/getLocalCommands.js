@@ -1,27 +1,24 @@
+const fs = require("fs");
 const path = require("path");
-const getAllFiles = require("./getAllFiles");
 
-module.exports = (exceptions = []) => {
-  let localCommands = [];
+function getAllFiles(dirPath, arrayOfFiles) {
+  const files = fs.readdirSync(dirPath);
 
-  const commandCategories = getAllFiles(
-    path.join(__dirname, "..", "commands"),
-    true
-  );
+  arrayOfFiles = arrayOfFiles || [];
 
-  for (const commandCategory of commandCategories) {
-    const commandFiles = getAllFiles(commandCategory);
-
-    for (const commandFile of commandFiles) {
-        const commandObject = require(commandFile);
-
-        if (exceptions.includes(commandObject.name)) {
-            continue;
-        }
-
-        localCommands.push(commandObject);
+  files.forEach((file) => {
+    if (fs.statSync(path.join(dirPath, file)).isDirectory()) {
+      arrayOfFiles = getAllFiles(path.join(dirPath, file), arrayOfFiles);
+    } else if (file.endsWith(".js")) {
+      arrayOfFiles.push(path.join(dirPath, file));
     }
-  }
+  });
 
-  return localCommands;
+  return arrayOfFiles;
+}
+
+module.exports = () => {
+  const commandFiles = getAllFiles(path.join(__dirname, "../commands"));
+  const commands = commandFiles.map((file) => require(file));
+  return commands;
 };

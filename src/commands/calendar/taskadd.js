@@ -44,7 +44,7 @@ module.exports = {
 
     const task = interaction.options.getString("task");
     const dateString = interaction.options.getString("date");
-    const timeString = interaction.options.getString("time");
+    let timeString = interaction.options.getString("time");
     const priority = interaction.options.getInteger("priority");
 
     const userId = interaction.user.id;
@@ -59,7 +59,11 @@ module.exports = {
     }
 
     // Check if the time is valid in the HH:MM format
-    const time = timeString.split(":");
+    let time = timeString.split(":");
+    if (time.length === 1) {
+      timeString += ":00";
+      time = timeString.split(":");
+    }
     if (time.length !== 2 || isNaN(time[0]) || isNaN(time[1])) {
       return interaction.editReply(
         "Invalid time format. Please use the format `HH:MM`."

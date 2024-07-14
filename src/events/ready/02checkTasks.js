@@ -1,5 +1,6 @@
 const { Client } = require('discord.js');
 let handleTaskExpiration = require('../../handlers/tasks/handleTaskExpiration.js');
+let handleTaskReminders = require('../../handlers/tasks/handleTaskReminders.js');
 
 /**
  * @param {Client} client
@@ -14,5 +15,7 @@ module.exports = (client) => {
 
         console.log('Checking for expired tasks...');
         handleTaskExpiration.execute(client);
+        console.log('Checking for task reminders...');
+        handleTaskReminders.execute(client);
     }, checkInterval);
 }

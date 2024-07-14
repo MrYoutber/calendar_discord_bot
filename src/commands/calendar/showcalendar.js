@@ -50,12 +50,14 @@ module.exports = {
           const time = date_time_string.split(" ")[1];
           const priority = task.priority;
           const taskName = task.task;
+          const taskReminders = task.reminders;
 
           tasksArray.push({
             date,
             time,
             taskName,
             priority,
+            taskReminders,
           });
         }
       }
@@ -96,12 +98,26 @@ module.exports = {
       });
     });
 
+    // Sort tasksArrayByDateAndPriority by date
+    tasksArrayByDateAndPriority.sort(
+      (a, b) => new Date(a.date) - new Date(b.date)
+    );
+
     // Building the reply string
     let replyString = "";
     for (const dateEntry of tasksArrayByDateAndPriority) {
       replyString += `## ${dateEntry.date}\n`;
       for (const taskEntry of dateEntry.tasks) {
-        replyString += `**${taskEntry.taskName}** - ${taskEntry.time} - Priority: ${taskEntry.priority}\n`;
+        if (taskEntry.taskReminders.length > 0) {
+          let remindersString = "";
+          for (const reminder of taskEntry.taskReminders) {
+            remindersString += `${reminder}, `;
+          }
+          taskEntry.taskReminders = remindersString.slice(0, -2);
+        } else {
+          taskEntry.taskReminders = "none";
+        }
+        replyString += `**${taskEntry.taskName}** - ${taskEntry.time} - Priority: ${taskEntry.priority} - Reminders: ${taskEntry.taskReminders}\n`;
       }
     }
 

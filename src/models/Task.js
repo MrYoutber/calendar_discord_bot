@@ -24,7 +24,11 @@ const taskSchema = new Schema({
     priority: {
         type: Number,
         default: 0,
-    }
+    },
+    reminders: {
+        type: Array,
+        default: [],
+    },
 });
 
 module.exports = model('Task', taskSchema);
